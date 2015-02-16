@@ -1,0 +1,41 @@
+﻿Build started 10/02/2015 18:24:30.
+     1>Project "C:\Users\MetaMan\Documents\dev\3DGameEngine\3DGameEngine\3DGameEngine.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Release\3DGameEngine.pch" /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt 3DGameEngine.cpp Camera.cpp DrawingInstance.cpp Actor.cpp InputHandler.cpp GraphicsRenderer.cpp Mesh.cpp ModelLoader.cpp MouseInput.cpp RacingCar.cpp Scene.cpp Shader.cpp SoundManager.cpp TestingGrounds.cpp Texture.cpp Transform.cpp
+         3DGameEngine.cpp
+     1>3DGameEngine.cpp(19): fatal error C1083: Cannot open include file: 'glm.hpp': No such file or directory
+         Camera.cpp
+     1>c:\users\metaman\documents\dev\3dgameengine\3dgameengine\Camera.hpp(9): fatal error C1083: Cannot open include file: 'GL\glew.h': No such file or directory
+         DrawingInstance.cpp
+     1>c:\users\metaman\documents\dev\3dgameengine\3dgameengine\Mesh.hpp(8): fatal error C1083: Cannot open include file: 'GL\glew.h': No such file or directory
+         Actor.cpp
+     1>c:\users\metaman\documents\dev\3dgameengine\3dgameengine\Actor.hpp(5): fatal error C1083: Cannot open include file: 'glm.hpp': No such file or directory
+         InputHandler.cpp
+     1>c:\users\metaman\documents\dev\3dgameengine\3dgameengine\MouseInput.hpp(5): fatal error C1083: Cannot open include file: 'SFML\System.hpp': No such file or directory
+         GraphicsRenderer.cpp
+     1>GraphicsRenderer.cpp(4): fatal error C1083: Cannot open include file: 'GL\glew.h': No such file or directory
+         Mesh.cpp
+     1>c:\users\metaman\documents\dev\3dgameengine\3dgameengine\Mesh.hpp(8): fatal error C1083: Cannot open include file: 'GL\glew.h': No such file or directory
+         ModelLoader.cpp
+     1>c:\users\metaman\documents\dev\3dgameengine\3dgameengine\Mesh.hpp(8): fatal error C1083: Cannot open include file: 'GL\glew.h': No such file or directory
+         MouseInput.cpp
+     1>c:\users\metaman\documents\dev\3dgameengine\3dgameengine\MouseInput.hpp(5): fatal error C1083: Cannot open include file: 'SFML\System.hpp': No such file or directory
+         RacingCar.cpp
+     1>c:\users\metaman\documents\dev\3dgameengine\3dgameengine\Actor.hpp(5): fatal error C1083: Cannot open include file: 'glm.hpp': No such file or directory
+         Scene.cpp
+     1>Scene.cpp(4): fatal error C1083: Cannot open include file: 'SFML\System.hpp': No such file or directory
+         Shader.cpp
+     1>c:\users\metaman\documents\dev\3dgameengine\3dgameengine\Shader.hpp(16): fatal error C1083: Cannot open include file: 'GL\glew.h': No such file or directory
+         SoundManager.cpp
+     1>c:\users\metaman\documents\dev\3dgameengine\3dgameengine\SoundManager.hpp(11): fatal error C1083: Cannot open include file: 'SFML\Audio.hpp': No such file or directory
+         TestingGrounds.cpp
+     1>c:\users\metaman\documents\dev\3dgameengine\3dgameengine\TestingGrounds.hpp(5): fatal error C1083: Cannot open include file: 'glm.hpp': No such file or directory
+         Texture.cpp
+     1>c:\users\metaman\documents\dev\3dgameengine\3dgameengine\Texture.hpp(8): fatal error C1083: Cannot open include file: 'SFML\Graphics.hpp': No such file or directory
+         Transform.cpp
+     1>c:\users\metaman\documents\dev\3dgameengine\3dgameengine\Transform.hpp(5): fatal error C1083: Cannot open include file: 'GL\glew.h': No such file or directory
+     1>Done Building Project "C:\Users\MetaMan\Documents\dev\3DGameEngine\3DGameEngine\3DGameEngine.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:05.19
