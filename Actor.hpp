@@ -53,5 +53,9 @@ public:
 	}
 	virtual void init();				//!< Called by the scene to initialize the object when it is created, override this to define the behaviour
 	virtual void update();				//!< Called by the scene override this to define the behaviour of the object for updating
+	void destroyMe()
+	{
+		_destroyed = true;
+	}
 };
 #endif // !GAMEOBJECT_H

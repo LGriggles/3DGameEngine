@@ -26,7 +26,7 @@ void DestroyabeBlock::update()
 		break;
 
 	case BlockState::DESTROYING:
-				_transform.setScale(Transform::lerp(glm::vec3(3,3,3),_transform._scale,0.39f));
+		_transform.setScale(Transform::lerp(glm::vec3(3,3,3),_transform._scale,0.39f));
 		if(_transform._scale.x > 2.9 && _transform._scale.y > 2.9 && _transform._scale.z > 2.9)
 		{
 			if(_transform._scale.x < 3.1 && _transform._scale.y < 3.1 && _transform._scale.z < 3.1)
@@ -37,7 +37,7 @@ void DestroyabeBlock::update()
 		break;
 
 	case BlockState::DESTROYED:
-		//DESTROY ME
+		destroyMe();
 		break;
 	}
 }
