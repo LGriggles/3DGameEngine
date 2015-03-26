@@ -19,7 +19,8 @@ void Camera::init()
 	_forward	= _target;
 
 	_mView = glm::lookAt(_position, glm::vec3(0.0f,1.0f,0.0f), glm::vec3(0.0f,-1.0f,0.0f));
-	_mProj = glm::perspective(90.0f, 1.0f, 0.0001f,100.0f);
+	_mProj = glm::ortho(-12.0f, 12.0f, -12.0f, 12.0f, 0.0f, 20.0f);
+	//_mProj = glm::perspective(90.0f, 1.0f, 0.0001f,100.0f);
 }
 
 void Camera::setPosition(const glm::vec3& position)

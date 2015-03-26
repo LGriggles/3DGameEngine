@@ -17,6 +17,9 @@ public:
 				DrawingInstance();
 	Texture&	getTexture();								//!< Get the address of the texture
 	void		giveMesh(Mesh &_newMesh);					//!< Give this drawing instance a mesh
+	void		setHasMesh(bool m){
+		_hasMesh = m;
+	}
 	Mesh&		getMesh();									//!< Get this drawing instance's mesh
 	GLuint		getMyShader();								//!< Get the shader identifier
 	void		setMyShader(GLuint _ShaderID);				//!< Set my shader

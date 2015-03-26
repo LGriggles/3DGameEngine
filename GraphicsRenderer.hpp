@@ -7,8 +7,7 @@
 enum RETURNVALUE
 {
 	CLOSE,
-	RESTARTGRAPHICS,
-	NONE,
+	RESTARTGRAPHICS,	NONE,
 };
 
 /*! The mediator between winapi and SFML */

@@ -47,18 +47,18 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GLM_FORCE_RADIANS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\SFML-2.1\include;$(SolutionDir)\..\glm\glm;$(SolutionDir)\..\glew-1.11.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\SFML-2.1\include;$(SolutionDir)\..\glm\glm;$(SolutionDir)\..\glew-1.11.0\include;$(SolutionDir)\..\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\SFML-2.1\lib;$(SolutionDir)\..\glew-1.11.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-main-d.lib;sfml-audio-d.lib;sfml-network-d.lib;opengl32.lib;glu32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\SFML-2.1\lib;$(SolutionDir)\..\assimp\lib;$(SolutionDir)\..\glew-1.11.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-main-d.lib;sfml-audio-d.lib;sfml-network-d.lib;opengl32.lib;glu32.lib;glew32.lib;assimpd.lib;zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -83,7 +83,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3DGameEngine.h" />
+    <ClInclude Include="ActorManager.hpp" />
+    <ClInclude Include="assimpModelLoader.hpp" />
     <ClInclude Include="Camera.hpp" />
+    <ClInclude Include="Collider.hpp" />
+    <ClInclude Include="CollisionEngine.hpp" />
+    <ClInclude Include="DebugCursor.h" />
+    <ClInclude Include="DestroyableBlock.hpp" />
     <ClInclude Include="DrawingInstance.hpp" />
     <ClInclude Include="Actor.hpp" />
     <ClInclude Include="EngineGlobals.hpp" />
@@ -91,7 +97,6 @@
     <ClInclude Include="KeyboardInput.hpp" />
     <ClInclude Include="GraphicsRenderer.hpp" />
     <ClInclude Include="Mesh.hpp" />
-    <ClInclude Include="ModelLoader.hpp" />
     <ClInclude Include="MouseInput.hpp" />
     <ClInclude Include="RacingCar.h" />
     <ClInclude Include="Resource.h" />
@@ -107,14 +112,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3DGameEngine.cpp" />
+    <ClCompile Include="assimpModelLoader.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CollisionEngine.cpp" />
+    <ClCompile Include="DebugCursor.cpp" />
+    <ClCompile Include="DestroyableBlock.cpp" />
     <ClCompile Include="DrawingInstance.cpp" />
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="KeyboardInput.cpp" />
     <ClCompile Include="GraphicsRenderer.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="MouseInput.cpp" />
     <ClCompile Include="RacingCar.cpp" />
     <ClCompile Include="Scene.cpp" />

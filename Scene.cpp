@@ -7,9 +7,22 @@
 #include "Scene.hpp"
 #include "InputHandler.hpp"
 #include "resource.h"
-#include "ModelLoader.hpp"
+#include "assimpModelLoader.hpp"
+#include "DestroyableBlock.hpp"
 
 #include "RacingCar.h"
+#include "DebugCursor.h"
+
+
+enum ActorTypes
+{
+	BLOCK,
+	DESTROYBLOCK,
+	PLAYER,
+	BOMB,
+	DEBUGCURSOR,
+	GROUND,
+};
 
 //GLM
 #include <glm.hpp>
@@ -22,56 +35,125 @@ enum ShaderTextureUniforms
 	LIGHTPOSITION,
 };
 
+
 //RUNTIME CALLS
 void Scene::runningInit()
 {
-	clearActors();
-	ModelLoader modelLoader;
-	modelLoader.loadWaveFront("Resources/Models/LOL.obj",_testModelLoadOne);
-	modelLoader.loadWaveFront("Resources/Models/GoronLink.obj",_testModelLoadThree);
-	modelLoader.loadWaveFront("Resources/Models/DekuLink.obj",_testModelLoadTwo);
+	_actorManager.instantiateFactory<RacingCar>(ActorTypes::PLAYER);
+	_actorManager.instantiateFactory<Actor>(ActorTypes::BLOCK);
+	_actorManager.instantiateFactory<Actor>(ActorTypes::BOMB);
+	_actorManager.instantiateFactory<Actor>(ActorTypes::DESTROYBLOCK);
+	_actorManager.instantiateFactory<Actor>(ActorTypes::DEBUGCURSOR);
+	_actorManager.instantiateFactory<Actor>(ActorTypes::GROUND);
+
+	AssimpModelLoader modelLoader;
+	modelLoader.loadModel("Resources/Models/LOL.obj",_testModelLoadOne);
+	modelLoader.loadModel("Resources/Models/Bomb.obj",_testModelLoadThree);
+	modelLoader.loadModel("Resources/Models/DekuLink.obj",_testModelLoadTwo);
 
 	testTexture.init("Resources/Models/LOL.png");
 	secondTexture.init("Resources/Models/DekuLink_grp.png");
-	thirdTexture.init("Resources/Models/GoronLink_grp.png");
-	fourthTexture.init("Resources/Models/texture_diffuse.jpg");
-	groundTexture.init("Resources/texture1.jpg");
+	thirdTexture.init("Resources/Models/bombTex.png");
+	metalTexture.init("Resources/Models/metalBlock3.png");
+	brickTexture.init("Resources/Models/brickBlock3.png");
+	groundTexture.init("Resources/gameboard3.png");
 	_skyBoxTexture.init("Resources/space.png");
 
+	_debugCursor = &createActor(glm::vec3(3,2,3), brickTexture, _testModelLoadFour, 0, sf::Vector2i(0, 0),ActorTypes::DEBUGCURSOR);
+	_debugCursor->_collision._depth = 1.3;
+	_debugCursor->_collision._width = 1.3;
+	_debugCursor->_collision._length = 1.3;
 	//Create actors on the scene
-	_objectOne = &createActor<RacingCar>(glm::vec3(0,0,0), secondTexture, _testModelLoadTwo,0);
-	_objectTwo = &createActor<Actor>(glm::vec3(2.6,1,-4), testTexture, _testModelLoadOne,0);
-	createActor<Actor>(glm::vec3(-1.0f,0.0f,0.0), thirdTexture, _testModelLoadThree,0);
-	_rotatingCubeTwo = &createActor<Actor>(glm::vec3(2.5,1,0), fourthTexture, _testModelLoadFour,1);
-	Actor* temp = &createActor<Actor>(glm::vec3(0,-0.5f,0), groundTexture, _planeMesh,0);
-	_rotatingCube = &createActor<Actor>(glm::vec3(5,32,0.0f), fourthTexture, _testModelLoadFour,0);
-	_skyBox = &createActor<Actor>(glm::vec3(0.0,0.0,0.0f), _skyBoxTexture, _testModelLoadFour,0);
-	_skyBox->_transform.setScale(glm::vec3(30,50,30));
+	Actor* temp = &createActor(glm::vec3(0,-0.5f,0), groundTexture, _planeMesh,0,ActorTypes::GROUND);
 	temp->_transform.setScale(glm::vec3(20,1,20));
-	_cameraTwo.setTarget(_objectOne->_transform._position);
+	_collisionEngine._colliders.push_back(temp);
+	temp->_collision._width = 20*3;
+	temp->_collision._length = 20*3;
+	temp->_collision._depth = 1;
+	//_cameraTwo.setTarget(_objectOne->_transform._position);
+	//_cameraTwo.setTarget(_objectOne->_transform._position);
 
-	for(unsigned int i = 0; i < 4; i++)
+	for(unsigned int i = 0; i < 17; i++)
 	{
-		createActor<Actor>(glm::vec3(i,0,-4),fourthTexture,_testModelLoadFour,0);
+		block = &createActor(glm::vec3((i*3),2,(0)),metalTexture,_testModelLoadFour,0,ActorTypes::DESTROYBLOCK);
+		_collisionEngine._colliders.push_back(block);
+		block->_collision._width = 3;
+		block->_collision._length = 3;
+		block->_collision._depth = 3;
+		block = &createActor(glm::vec3((i*3),2,(16*3)),metalTexture,_testModelLoadFour,0,ActorTypes::DESTROYBLOCK);
+		_collisionEngine._colliders.push_back(block);
+		block->_collision._width = 3;
+		block->_collision._length = 3;
+		block->_collision._depth = 3;
 	}
-	for(int k = 0; k < 4; k++)
+	for(unsigned int k = 0; k < 17; k++)
 	{
-		createActor<Actor>(glm::vec3(4,0,-4+k),fourthTexture,_testModelLoadFour,0);
+		block = &createActor(glm::vec3((0),2,(k*3)),metalTexture,_testModelLoadFour,0,ActorTypes::DESTROYBLOCK);
+		_collisionEngine._colliders.push_back(block);
+		block->_collision._width = 3;
+		block->_collision._length = 3;
+		block->_collision._depth = 3;
+		block = &createActor(glm::vec3((16*3),2,(k*3)),metalTexture,_testModelLoadFour,0,ActorTypes::DESTROYBLOCK);
+		_collisionEngine._colliders.push_back(block);
+		block->_collision._width = 3;
+		block->_collision._length = 3;
+		block->_collision._depth = 3;
 	}
-	for(unsigned int i = 0; i < 2; i++)
+	for(unsigned int i = 0; i < 7; i++)
 	{
-		createActor<Actor>(glm::vec3(0.5+i,1,-4),fourthTexture,_testModelLoadFour,0);
+		for(int k = 0; k < 7; k++)
+		{
+			block = &createActor(glm::vec3(6+(i*6),2,6+(k*6)),metalTexture,_testModelLoadFour,0,ActorTypes::DESTROYBLOCK);
+			_collisionEngine._colliders.push_back(block);
+			block->_collision._width = 3;
+			block->_collision._length = 3;
+			block->_collision._depth = 3;
+		}
 	}
-	_lightPoint = glm::vec3(10,10,10);
+
+	for(unsigned int i = 0; i < 15; i++)
+	{
+		int tmp = i;
+		if (isOdd(i)){
+			for(int k = 0; k < 15; k++)
+			{
+				block = &createActor(glm::vec3(3+(i*3),2,3+(k*3)), brickTexture,_testModelLoadFour,0, sf::Vector2i(i, k),ActorTypes::DESTROYBLOCK);
+				_collisionEngine._colliders.push_back(block);
+				block->_collision._width = 3;
+				block->_collision._length = 3;
+				block->_collision._depth = 3;
+				block->_collision.isActive = true;
+				block->drawingInstance.setHasMesh(true);
+			}
+		}
+		else{
+			for(int k = 0; k < 8; k++)
+			{
+				block = &createActor(glm::vec3(3+(i*3),2,3+(k*6)), brickTexture,_testModelLoadFour,0, sf::Vector2i(i, k*2),ActorTypes::DESTROYBLOCK);
+				_collisionEngine._colliders.push_back(block);
+				block->_collision._width = 3;
+				block->_collision._length = 3;
+				block->_collision._depth = 3;
+				block->_collision.isActive = true;
+				block->drawingInstance.setHasMesh(true);
+			}
+		}
+	}
+
+	_lightPoint = glm::vec3(10,30,10);
 	_soundManager.playSound(0);
-	
+
 	setState(StateScene::OPENGLGENERATES);
 }
 
 //Running state
 void Scene::runningUpdate()
 {
-
+	_actorManager.update();
+	if(EngineInput::keyboardInput.isKeyPressed(sf::Keyboard::N))
+	{
+		((RacingCar*)_objectOne)->_playerState = RacingCar::TELEPORTATION;
+	}
 	//Camera navigation
 	if(EngineInput::keyboardInput.isKeyHeld(sf::Keyboard::D))
 	{
@@ -125,15 +207,109 @@ void Scene::runningUpdate()
 	{
 		_shiftWalk = false;
 	}
-	if(EngineInput::keyboardInput.isKeyPressed(sf::Keyboard::B))
+	if(EngineInput::keyboardInput.isKeyPressed(sf::Keyboard::Space))
 	{
-		switchWireFrame();
+		_objectOne = &createActor(_debugCursor->_transform._position, secondTexture, _testModelLoadTwo,0,ActorTypes::PLAYER);
+		_objectOne->_collision._depth = 2.6;
+		_objectOne->_collision._width = 2.6;
+		_objectOne->_collision._length = 2.6;
+		((RacingCar*)_objectOne)->_teleportEndPosition = _objectOne->_transform._position;
 	}
+	/*if(EngineInput::keyboardInput.isKeyPressed(sf::Keyboard::M))
+	{
+		for(auto it : _activeObjects)
+		{
+			if (it->isGridLocked() && it->getGridPos() == _debugCursor->getGridPos())
+			{
+				it->_collision.isActive = true;
+				it->drawingInstance.setHasMesh(true);
+				it->drawingInstance.giveMesh(_testModelLoadFour);
+				it->drawingInstance.giveTexture(brickTexture);
+				_debugCursor->drawingInstance.giveTexture(secondTexture);
+			}
+		}
+	}
+	if(EngineInput::keyboardInput.isKeyPressed(sf::Keyboard::U))
+	{
+		for(auto it : _activeObjects)
+		{
+			if (it->isGridLocked() && it->getGridPos() == _debugCursor->getGridPos())
+			{ 
+				it->_collision.isActive = true;
+				it->drawingInstance.setHasMesh(true);
+				it->drawingInstance.giveMesh(_testModelLoadFour);
+				it->drawingInstance.giveTexture(metalTexture);
+				_debugCursor->drawingInstance.giveTexture(secondTexture);
+			}
+		}
+	}*/
+	if(EngineInput::keyboardInput.isKeyPressed(sf::Keyboard::Num0))
+	{
+		metalTexture.init("Resources/Models/metalBlock1.png");
+		brickTexture.init("Resources/Models/brickBlock1.png");
+		groundTexture.init("Resources/gameboard1.png");
+		metalTexture.GenerateTexture();
+		brickTexture.GenerateTexture();
+		groundTexture.GenerateTexture();
+	}
+
+	if(EngineInput::keyboardInput.isKeyPressed(sf::Keyboard::G))
+	{
+		_activeCamera->getRotation();
+		_activeCamera->getPosition();
+		std::cout << "lol" << std::endl;
+	}
+
+	//if(EngineInput::keyboardInput.isKeyPressed(sf::Keyboard::I))
+	//{
+	//	for(auto it : _activeObjects)
+	//	{
+	//		if (it->isGridLocked() && it->getGridPos() == _debugCursor->getGridPos())
+	//		{ 
+	//			it->_collision.isActive = false;
+	//			it->drawingInstance.setHasMesh(false);
+	//			//it-> 
+	//			it->drawingInstance.giveTexture(metalTexture);
+	//			_debugCursor->drawingInstance.giveTexture(secondTexture);
+	//			_debugCursor->drawingInstance.setHasMesh(true);
+	//		}
+	//	}
+	//}
+	//if(EngineInput::keyboardInput.isKeyPressed(sf::Keyboard::L))
+	//{
+	//	sf::Vector2i playerPos = sf::Vector2i(glm::floor((_objectOne->_transform._position.x + 1.5) / 3) - 1, glm::floor((_objectOne->_transform._position.z + 1.5) / 3) - 1);
+	//	for(auto it : _activeObjects)
+	//	{
+	//		if (it->isGridLocked() && it->getGridPos() == playerPos)
+	//		{
+	//			it->_actorID = ActorTypes::BOMB;
+	//			it->_collision.isActive = false;
+	//			it->drawingInstance.giveMesh(_testModelLoadThree);
+	//			it->drawingInstance.giveTexture(thirdTexture);
+	//			_debugCursor->drawingInstance.giveTexture(secondTexture);
+	//			_debugCursor->drawingInstance.setHasMesh(true);
+	//		}
+	//	}
+	//}
 
 	//Add a game object
 	if(EngineInput::keyboardInput.isKeyPressed(sf::Keyboard::K))
 	{	
-		createActor<JumpingObject>(_activeCamera->getPosition(),testTexture,_testModelLoadOne,0);
+		//for(auto it : _activeObjects)
+		//{
+		//	if (it->getActorType() == ActorTypes::BOMB)
+		//	{ 
+		//		it->_collision.isActive = false;
+		//		it->drawingInstance.setHasMesh(false);
+		//		destroyBricks(it->getGridPos(), 0, -1, 4);
+		//		destroyBricks(it->getGridPos(), 0, 1, 4);
+		//		destroyBricks(it->getGridPos(), -1, 0, 4);
+		//		destroyBricks(it->getGridPos(), 1, 0, 4);
+		//		//it->drawingInstance.giveTexture(thirdTexture);
+		//		_debugCursor->drawingInstance.giveTexture(secondTexture);
+		//		_debugCursor->drawingInstance.setHasMesh(true);
+		//	}
+		//}
 	}
 
 	//Switch cameras
@@ -174,12 +350,9 @@ void Scene::runningUpdate()
 	if(!_paused)
 	{
 		//Rotate the cubes
-		_rotatingCube->_transform.rotate(glm::vec3(0,0.05f,0));
-		_rotatingCubeTwo->_transform.rotate(glm::vec3(0,0.05f,0));
-		_objectTwo->_transform.rotate(glm::vec3(0,0.05f,0));
 		if(EngineInput::keyboardInput.isKeyPressed(sf::Keyboard::LAlt))
 		{
-						EngineInput::mouseInput.setMousePosition(sf::Vector2i(
+			EngineInput::mouseInput.setMousePosition(sf::Vector2i(
 				(240/2),
 				(320/2))
 				);
@@ -194,11 +367,7 @@ void Scene::runningUpdate()
 				(320/2))
 				);
 		}
-		//update all game objects
-		for(auto it : _activeObjects)
-		{
-			it->update();
-		}
+		
 	}
 }
 
@@ -206,8 +375,8 @@ void Scene::runningUpdate()
 //ENGINE CALLS
 void Scene::init()
 {
-	ModelLoader modelLoader;
-	modelLoader.loadWaveFront("Resources/Models/mesh.obj",_testModelLoadFour);
+	AssimpModelLoader modelLoader;
+	modelLoader.loadModel("Resources/Models/mesh.obj",_testModelLoadFour);
 	_testModelLoadFour.generateMesh();
 
 	_cameraSpeed = 0.1f;
@@ -221,10 +390,10 @@ void Scene::init()
 	_shiftWalk = true;
 
 	//Define 2D flat plane mesh
-	_vertices.push_back(sf::Vector3f(-1,0,1));
-	_vertices.push_back(sf::Vector3f(-1,0,-1));
-	_vertices.push_back(sf::Vector3f(1,0,-1));
-	_vertices.push_back(sf::Vector3f(1,0,1));
+	_vertices.push_back(sf::Vector3f(-0.06,0.2,2.25));
+	_vertices.push_back(sf::Vector3f(-0.06,0.2,-0.06));
+	_vertices.push_back(sf::Vector3f(2.25,0.2,-0.06));
+	_vertices.push_back(sf::Vector3f(2.25,0.2,2.25));
 	_indices.push_back(sf::Vector3i(0,1,2));
 	_indices.push_back(sf::Vector3i(0,2,3));
 	_textureUVs.push_back(sf::Vector2f(0,0));
@@ -265,9 +434,9 @@ void Scene::init()
 	shaderRenderer->_myShader = &_shaderColour;
 	_loadingTexture.init("Resources/texture2.png");
 	_loadingTexture.GenerateTexture();
-	_loadingScreen = &createActor<Actor>(glm::vec3(1.5,1,-0.5f),_loadingTexture,_testModelLoadFour,0);
-	_loadingScreen->_transform.setScale(glm::vec3(1,1,1));
-	_loadingScreen->_transform.rotate(glm::vec3(0,-4,0));
+	//_loadingScreen = &createActor(glm::vec3(1.5,1,-0.5f),_loadingTexture,_testModelLoadFour,0,999);
+	//_loadingScreen->_transform.setScale(glm::vec3(1,1,1));
+	//_loadingScreen->_transform.rotate(glm::vec3(0,-4,0));
 
 	newThread = new sf::Thread(&Scene::runningInit, this);
 	newThread->launch();
@@ -283,7 +452,7 @@ void Scene::update()
 
 	case StateScene::LOADINGSCENE:
 		_activeCamera->update();
-		_loadingScreen->_transform.rotate(glm::vec3(0,0.01f,0));
+		//_loadingScreen->_transform.rotate(glm::vec3(0,0.01f,0));
 		break;
 
 	case StateScene::OPENGLGENERATES:
@@ -294,7 +463,8 @@ void Scene::update()
 		testTexture.GenerateTexture();
 		secondTexture.GenerateTexture();
 		thirdTexture.GenerateTexture();
-		fourthTexture.GenerateTexture();
+		metalTexture.GenerateTexture();
+		brickTexture.GenerateTexture();
 		groundTexture.GenerateTexture();
 		_skyBoxTexture.GenerateTexture();
 		setState(StateScene::RUNNING);
@@ -313,7 +483,7 @@ void Scene::draw()
 	{
 	case StateScene::LOADINGSCENE:
 		{
-			glUseProgram(_shaderTexture.getProgramID());
+			/*glUseProgram(_shaderTexture.getProgramID());
 			glBindTexture(GL_TEXTURE_2D,_loadingScreen->drawingInstance.getTexture().getTextureHandle());
 			Mesh& temp = _loadingScreen->drawingInstance.getMesh();
 
@@ -328,7 +498,7 @@ void Scene::draw()
 			glUniformMatrix4fv(_shaderTexture.getStoredUniform(ShaderTextureUniforms::VIEW),1,	GL_FALSE, &_activeCamera->getViewMatrix()[0][0]);
 			glUniformMatrix4fv(_shaderTexture.getStoredUniform(ShaderTextureUniforms::MODEL),1,	GL_FALSE, &temp.getMatrix()[0][0]);
 			glUniform3f(_shaderTexture.getStoredUniform(ShaderTextureUniforms::LIGHTPOSITION),_lightPoint.x,_lightPoint.y,_lightPoint.z);
-			_loadingScreen->drawingInstance.getMesh().Draw();
+			_loadingScreen->drawingInstance.getMesh().Draw();*/
 		}
 		break;
 	case StateScene::SPLASHSCENE:
@@ -339,27 +509,26 @@ void Scene::draw()
 
 	case StateScene::RUNNING:
 		{
-			for(ShaderRenderer* shaderIter : _shaderRenderers)
+			glUseProgram(_shaderTexture.getProgramID());
+			for(auto factoryIter : _actorManager._activeFactories)
 			{
-				glUseProgram(shaderIter->programHandle);
-
-				for(Actor* it : shaderIter->_activeObjects)
+				for(auto actorIter : factoryIter->_activeActors)
 				{
-					if(it->drawingInstance.hasMesh())	//Does this drawing instance have a mesh?
+					if(actorIter->drawingInstance.hasMesh())	//Does this drawing instance have a mesh?
 					{
-						if(it->drawingInstance.hasTexture())	//Does this drawing instance have a texture?
+						if(actorIter->drawingInstance.hasTexture())	//Does this drawing instance have a texture?
 						{
-							glBindTexture(GL_TEXTURE_2D,it->drawingInstance.getTexture().getTextureHandle());
+							glBindTexture(GL_TEXTURE_2D,actorIter->drawingInstance.getTexture().getTextureHandle());
 						}
-						Mesh& temp = it->drawingInstance.getMesh();
+						Mesh& temp = actorIter->drawingInstance.getMesh();
 
-						temp.getMatrix() = it->_transform.getTransMatrix();
+						temp.getMatrix() = actorIter->_transform.getTransMatrix();
 
-						glUniformMatrix4fv(shaderIter->_myShader->getStoredUniform(ShaderTextureUniforms::PROJECTION),1, GL_FALSE, &_activeCamera->getProjectionMatrix()[0][0]);
-						glUniformMatrix4fv(shaderIter->_myShader->getStoredUniform(ShaderTextureUniforms::VIEW),1,	GL_FALSE, &_activeCamera->getViewMatrix()[0][0]);
-						glUniformMatrix4fv(shaderIter->_myShader->getStoredUniform(ShaderTextureUniforms::MODEL),1,	GL_FALSE, &temp.getMatrix()[0][0]);
-						glUniform3f(shaderIter->_myShader->getStoredUniform(ShaderTextureUniforms::LIGHTPOSITION),_lightPoint.x,_lightPoint.y,_lightPoint.z);
-						it->drawingInstance.getMesh().Draw();
+						glUniformMatrix4fv(_shaderTexture.getStoredUniform(ShaderTextureUniforms::PROJECTION),1, GL_FALSE, &_activeCamera->getProjectionMatrix()[0][0]);
+						glUniformMatrix4fv(_shaderTexture.getStoredUniform(ShaderTextureUniforms::VIEW),1,	GL_FALSE, &_activeCamera->getViewMatrix()[0][0]);
+						glUniformMatrix4fv(_shaderTexture.getStoredUniform(ShaderTextureUniforms::MODEL),1,	GL_FALSE, &temp.getMatrix()[0][0]);
+						glUniform3f(_shaderTexture.getStoredUniform(ShaderTextureUniforms::LIGHTPOSITION),_lightPoint.x,_lightPoint.y,_lightPoint.z);
+						actorIter->drawingInstance.getMesh().Draw();
 					}
 				}
 			}
@@ -373,25 +542,24 @@ void Scene::winAPIinput(unsigned int input)
 	switch(input)
 	{
 	case ID_CAMERAS_CAMERAONE:
-			_activeCamera = &_cameraOne;
+		_activeCamera = &_cameraOne;
 		break;
 
 	case ID_CAMERAS_CAMERATWO:
-			_activeCamera = &_cameraTwo;
+		_activeCamera = &_cameraTwo;
 		break;
 
 	case ID_OBJECT_CREATE:
-			createActor<JumpingObject>(_activeCamera->getPosition(),testTexture,_testModelLoadOne,0);
 		break;
 
 	case ID_MODE_REAL:
-			setWireFrame(false);
-			_paused = false;
+		setWireFrame(false);
+		_paused = false;
 		break;
 
 	case ID_MODE_DEBUG:
-			setWireFrame(true);
-			_paused = true;
+		setWireFrame(true);
+		_paused = true;
 		break;
 	}
 }
@@ -401,41 +569,59 @@ void Scene::setState(StateScene newSceneState)
 	_sceneState = newSceneState;
 }
 
+void Scene::destroyBricks(sf::Vector2i pos, int x, int y, int length)
+{
+	//for(auto it : _activeObjects)
+	//{
+	//	if (it->isGridLocked() && it->getGridPos() == sf::Vector2i(pos.x + x, pos.y + y))
+	//	{ 
+	//		if(it->getActorType() == ActorTypes::DESTROYBLOCK){
+	//			it->_collision.isActive = false;
+	//			it->drawingInstance.setHasMesh(false);
+	//		}
+	//		if (length > 0 && it->getActorType() != ActorTypes::BLOCK)
+	//		{
+	//			destroyBricks(sf::Vector2i(pos.x+x, pos.y+y), x, y, length-1);
+	//		}
+	//	}
+	//}
+}
 
 void Scene::setWireFrame(bool wireFrame)
 {
 	_wireFrame = wireFrame;
 	switch(_wireFrame)
-		{
-		case false:
-				glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-			break;
+	{
+	case false:
+		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+		break;
 
-		case true:
-				glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-			break;
-		}
+	case true:
+		glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+		break;
+	}
 }
 
 void Scene::switchWireFrame()
 {
-		switch(_wireFrame)
-		{
-		case false:
-				glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-				_wireFrame = true;
-			break;
+	switch(_wireFrame)
+	{
+	case false:
+		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+		_wireFrame = true;
+		break;
 
-		case true:
-				glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-				_wireFrame = false;
-			break;
-		}
+	case true:
+		glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+		_wireFrame = false;
+		break;
+	}
 }
 
 Scene::Scene()
 {
 	_paused = false;
+	glOrtho(0.0f, 4.0f, 4.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Scene::~Scene()

@@ -13,7 +13,24 @@
 class Transform
 {
 public:
-	
+	static glm::vec3 vectorToward(glm::vec3 point, glm::vec3 fromPoint)
+    {
+		glm::vec3 _currentResultantVector(0,0,0);
+		_currentResultantVector.x =  point.x - fromPoint.x;
+		_currentResultantVector.z =  point.z - fromPoint.z;
+
+		float mag = (float)std::sqrt(std::pow(_currentResultantVector.x,2) + std::pow(_currentResultantVector.z,2));
+
+         _currentResultantVector.x = _currentResultantVector.x/mag;
+        _currentResultantVector.z = _currentResultantVector.z/mag;
+
+        return _currentResultantVector;
+    }
+
+	static glm::vec3 lerp( const glm::vec3& A, const glm::vec3& B, float t ){
+		return A*t + B*(1.f-t);
+	}
+
 	Transform();
 	~Transform();
 	void lookAt(glm::vec3 position);

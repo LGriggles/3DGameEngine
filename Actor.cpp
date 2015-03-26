@@ -13,3 +13,18 @@ void Actor::update()
 {
 
 }
+
+bool Actor::isGridLocked()
+{
+	return _gridLocked;
+}
+
+sf::Vector2i Actor::getGridPos()
+{
+	return _gridPos;
+}
+
+CollisionEngine& Actor::getCollisionEngine()
+{
+	return *_collisionEngine;
+}

@@ -16,6 +16,8 @@ using std::vector;
 #include <gtx\transform.hpp>
 
 //3DGameEngine
+#include "ActorManager.hpp"
+#include "CollisionEngine.hpp"
 #include "SoundManager.hpp"
 #include "Mesh.hpp"
 #include "Actor.hpp"
@@ -29,7 +31,6 @@ class ShaderRenderer
 {
 public:
 	GLuint programHandle;
-	vector<Actor *> _activeObjects;
 	Shader* _myShader;
 };
 
@@ -60,6 +61,7 @@ private:
 	std::vector<sf::Vector3f>	_vertices;		//!< Verts for mesh
 	vector<sf::Vector3f>		_vertNorms;		//!< Vertex normals
 	std::vector<sf::Vector3i>	_indices;		//!< Indices
+	CollisionEngine _collisionEngine;
 
 	Shader _shaderTexture;		//!< Shader for texturing
 	Shader _shaderColour;		//!< Shader for colouring in accordance to normals
@@ -70,6 +72,7 @@ private:
 	Mesh _testModelLoadFour;	//!< A loaded mesh
 	vector<ShaderRenderer*> _shaderRenderers;
 public:
+	ActorManager _actorManager;
 	Scene();
 	~Scene();
 	void init();			//!< Initialize the scene
@@ -84,50 +87,74 @@ public:
 	void switchWireFrame();						//!< Switch the wireframe mode
 private:
 	vector<Shader> _shaderList;			//!< List of cached shaders
-	vector<Actor *> _activeObjects;		//!< Active objects in the scene
 	Camera _cameraOne, _cameraTwo;		//!< The two cameras
 	Camera *_activeCamera;				//!< The currently active camera
 	glm::vec3 _lightPoint;				//!< The position of the light
 	//Test objects and textures below
 	Actor* _objectOne;
-	Actor* _objectTwo;
-	Actor* _objectThree;
-	Actor* _objectFour;
 	Actor* _objectGround;
-	Actor* _rotatingCube;
-	Actor* _rotatingCubeTwo;
-	Actor* _skyBox;
 	Actor* _loadingScreen;
+	Actor* _debugCursor;
+	Actor* block;
 	GLuint ProjectionViewModelMatrixID;
 	Texture testTexture;
 	Texture secondTexture;
 	Texture thirdTexture;
-	Texture fourthTexture;
+	Texture metalTexture;
+	Texture brickTexture;
 	Texture groundTexture;
 	Texture _skyBoxTexture;
 	Texture _loadingTexture;
+
+	void destroyBricks (sf::Vector2i pos, int x, int y, int size);
+
 public:
-	template<class T_ACTORTYPE>
-	Actor& createActor(glm::vec3 position,Texture& texture, Mesh& mesh, int shaderIndex)
+
+	Actor& createActor(glm::vec3 position,Texture& texture, Mesh& mesh, int shaderIndex, int actorID)
 	{
-		Actor* temp = new T_ACTORTYPE();
+		Actor* temp =_actorManager.createActor(actorID);
+		temp->_actorID = actorID;
+		temp->_gameScene = this;
+		temp->setGridLocked(false);
+		temp->setGridPos(sf::Vector2i(0,0));
+		temp->_collisionEngine = &_collisionEngine;
 		temp->drawingInstance.giveTexture(texture);
 		temp->init();
 		temp->drawingInstance.giveMesh(mesh);
 
 		temp->_transform.setPosition(position);
-		_shaderRenderers[shaderIndex]->_activeObjects.push_back(temp);
-		_activeObjects.push_back(temp);
 		return *temp;
 	}	//!< Create an actor from the templated type, the templated class must derive from the Actor base class
 
 
+	Actor& createActor(glm::vec3 position,Texture& texture, Mesh& mesh, int shaderIndex, sf::Vector2i grid, int actorID)
+	{
+		Actor* temp =_actorManager.createActor(actorID);
+		temp->_actorID = actorID;
+		temp->_gameScene = this;
+		temp->setGridLocked(true);
+		temp->setGridPos(grid);
+		temp->_collisionEngine = &_collisionEngine;
+		temp->drawingInstance.giveTexture(texture);
+		temp->init();
+		temp->drawingInstance.giveMesh(mesh);
+
+		temp->_transform.setPosition(position);
+		return *temp;
+	}	//!< Create an actor from the templated type, the templated class must derive from the Actor base class
+
+	bool isOdd( int integer )
+	{
+
+		if ( integer % 2== 0 )
+			return true;
+		else
+			return false;
+	}
+
 	void clearActors()
 	{
-		for(auto iterShaders : _shaderRenderers)
-		{
-			iterShaders->_activeObjects.clear();
-		}
+
 	}
 };
 #endif // !SCENE_H

@@ -62,6 +62,8 @@ public:
 		_targetPtr = &_target;
 		_hasTarget = true;
 	}
+	void setRotation(glm::vec3 r)
+	{ _rotation = r; }
 	glm::vec3 getRotation()
 	{ return _rotation; };
 	glm::vec3 getPosition()  						//!< get the position
