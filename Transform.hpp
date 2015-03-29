@@ -31,6 +31,11 @@ public:
 		return A*t + B*(1.f-t);
 	}
 
+	static float distance(glm::vec3 toPoint, glm::vec3 fromPoint)
+	{
+		return (std::sqrt(std::pow(toPoint.x - fromPoint.x,2) + std::pow(toPoint.z - fromPoint.z,2)));
+	}
+
 	Transform();
 	~Transform();
 	void lookAt(glm::vec3 position);

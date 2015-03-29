@@ -5,6 +5,27 @@
 class RacingCar : public Actor
 {
 public:
+	enum PlayerDirection
+	{
+		UP,
+		DOWN,
+		LEFT,
+		RIGHT
+	};
+	PlayerDirection _playerDirection;
+	glm::vec3 _moveTo;
+
+	enum PlayerGravity
+	{
+		GROUNDED,
+		FALLING,
+		JUMPING,
+	};
+	PlayerGravity _playerGravity;
+	float _gravity;
+	float _jumpPower;
+
+
 	enum PlayerState
 	{
 		TELEPORTATION,
@@ -13,9 +34,14 @@ public:
 	};
 	PlayerState _playerState;
 
+	enum PlayerBounce
+	{
+		BOUNCE,
+		DONE
+	};
+	PlayerBounce _playerBounce;
+
 	glm::vec3 _teleportEndPosition;
-		float _jumpAmount;		//!< Amount to jump by
-	float _gravity;			//!< The object's gravity
 
 	void init();			//!< Initializer
 	void update();			//!< Update the object

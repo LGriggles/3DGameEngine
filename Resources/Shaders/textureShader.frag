@@ -9,6 +9,8 @@ out vec4 fragColour;
 
 uniform sampler2D tex; //The texture
 
+uniform vec3 tint = vec3(0,0,0);
+
 void main() 
 {
 	vec3 Ks = vec3(1.0f, 1.0f, 1.0f);				//Specular reflection constant
@@ -35,7 +37,7 @@ void main()
 	vec4 sourceIntensity = vec4(Ks,1.0) * vec4(LightSource,1.0) * pow(max(dot(R,V),0.0), 32);
 
     //Apply phong
-	vec4 phongColouring = ambientIntensity + diffuseIntensity + sourceIntensity;
+	vec4 phongColouring = ambientIntensity + diffuseIntensity + sourceIntensity + vec4(tint,1.0);
 
 	//Apply texture
 	vec4 textureColour = texture(tex,oTextureCoord);

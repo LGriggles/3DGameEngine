@@ -9,6 +9,7 @@ class CollisionEngine
 public:
 	std::vector<Actor*> _returnedCollider;
 	std::vector<Actor*> _colliders;
+	std::vector<Actor*> _deletionList;
 
     bool checkIfColliding(Actor& actorOne, Actor& actorTwo);
 	std::vector<Actor*>* getActorPlaceFree(Actor* testMe, float x, float y, float z);

@@ -83,8 +83,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3DGameEngine.h" />
+    <ClInclude Include="ActorList.hpp" />
     <ClInclude Include="ActorManager.hpp" />
     <ClInclude Include="assimpModelLoader.hpp" />
+    <ClInclude Include="Bomb.hpp" />
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Collider.hpp" />
     <ClInclude Include="CollisionEngine.hpp" />
@@ -113,6 +115,7 @@
   <ItemGroup>
     <ClCompile Include="3DGameEngine.cpp" />
     <ClCompile Include="assimpModelLoader.cpp" />
+    <ClCompile Include="Bomb.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CollisionEngine.cpp" />
     <ClCompile Include="DebugCursor.cpp" />

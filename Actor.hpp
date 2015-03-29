@@ -31,6 +31,7 @@ public:
 	CollisionEngine& getCollisionEngine();
 	CollisionEngine* _collisionEngine;
 	Collider _collision;
+	glm::vec3 _myTint;
 
 	Actor()
 	{

@@ -110,6 +110,19 @@ private:
 
 public:
 
+	Actor& createActor(glm::vec3 position,int actorID)
+	{
+		Actor* temp =_actorManager.createActor(actorID);
+		temp->_actorID = actorID;
+		temp->_gameScene = this;
+		temp->setGridLocked(false);
+		temp->_collisionEngine = &_collisionEngine;
+		temp->init();
+
+		temp->_transform.setPosition(position);
+		return *temp;
+	}
+
 	Actor& createActor(glm::vec3 position,Texture& texture, Mesh& mesh, int shaderIndex, int actorID)
 	{
 		Actor* temp =_actorManager.createActor(actorID);

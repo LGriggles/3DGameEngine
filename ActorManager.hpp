@@ -19,12 +19,23 @@ public:
 	}
 
 	template<class T_ACTORTYPE>
-	void instantiateMemory(int _actorID)
+	void instantiateMemory(int actorID,Texture& texture, Mesh& mesh)
 	{
 		int repeat = 1000;
 		while(repeat>0)
 		{
-			_instantiatedActors.push_back(new T_ACTORTYPE);
+			T_ACTORTYPE* instActor = new T_ACTORTYPE;
+			Actor* newActor = (Actor*)instActor;
+			_instantiatedActors.push_back(newActor);
+
+			
+			newActor->_actorID = actorID;
+			newActor->setGridLocked(false);
+			newActor->setGridPos(sf::Vector2i(0,0));
+			newActor->drawingInstance.giveTexture(texture);
+			newActor->init();
+			newActor->drawingInstance.giveMesh(mesh);
+
 			repeat --;
 		}
 	}
@@ -96,11 +107,11 @@ public:
 	}
 
 	template <class T_ACTORTYPE>
-	void instantiateFactory(int _actorID)
+	void instantiateFactory(int actorID,Texture& texture, Mesh& mesh)
 	{
-		_actorFactories[_actorID] = new ActorFactory();
-		_actorFactories[_actorID]->instantiateMemory<T_ACTORTYPE>(_actorID);
-		_activeFactories.push_back(_actorFactories[_actorID]);
+		_actorFactories[actorID] = new ActorFactory();
+		_actorFactories[actorID]->instantiateMemory<T_ACTORTYPE>(actorID,texture,mesh);
+		_activeFactories.push_back(_actorFactories[actorID]);
 	}
 
 	void update()
@@ -110,7 +121,7 @@ public:
 			iter->update();
 		}
 	}
-	
+
 
 	Actor* createActor(int _actorID)
 	{
